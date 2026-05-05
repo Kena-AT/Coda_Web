@@ -18,4 +18,5 @@ def extract_text_from_docx(docx_path):
             paragraphs.append(''.join(texts))
     return '\n'.join(paragraphs)
 
-print(extract_text_from_docx(sys.argv[1]))
+with open('docx_output.txt', 'w', encoding='utf-8') as f:
+    f.write(extract_text_from_docx(sys.argv[1]))
