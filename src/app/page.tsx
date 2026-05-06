@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useRef, useState, useCallback } from "react";
 import Screenshot3 from "@/assets/Screenshot (3).png";
 import Screenshot4 from "@/assets/Screenshot (4).png";
 import Screenshot5 from "@/assets/Screenshot (5).png";
@@ -11,6 +14,33 @@ import Screenshot11 from "@/assets/Screenshot (11).png";
 import Screenshot12 from "@/assets/Screenshot (12).png";
 
 export default function Home() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const scrollStartX = useRef(0);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+    scrollStartX.current = scrollContainerRef.current.scrollLeft;
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const delta = dragStartX.current - e.clientX;
+    scrollContainerRef.current.scrollLeft = scrollStartX.current + delta;
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
   const screenshots = [
     { image: Screenshot3, label: "SEARCH_MATRIX // GLOBAL_INDEX" },
     { image: Screenshot4, label: "VAULT_EXPLORER // LOCAL_STORAGE" },
@@ -32,7 +62,7 @@ export default function Home() {
         </div>
         <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-10 text-center">
           <div className="border border-[#e60000] bg-[#e6000005] px-4 py-1 font-mono text-xs font-bold tracking-[0.3em] text-[#e60000]">
-            SYSTEM_LOAD_COMPLETE // V.2.0.4-STABLE
+            SYSTEM_LOAD_COMPLETE // V.1.0.0-STABLE
           </div>
           <div className="font-display text-[clamp(2rem,8vw,4.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
@@ -93,13 +123,18 @@ export default function Home() {
           </div>
           <div className="relative">
             <div
-              className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-[#131313] scrollbar-thumb-[#e60000] scroll-smooth snap-x snap-mandatory cursor-grab active:cursor-grabbing"
+              ref={scrollContainerRef}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              className={`flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-[#131313] scrollbar-thumb-[#e60000] scroll-smooth snap-x snap-mandatory select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
               style={{ scrollbarWidth: 'thin' }}
             >
               {screenshots.map((card) => (
                 <div
                   key={card.label}
-                  className="flex-shrink-0 w-[320px] snap-center flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:scale-[1.02]"
+                  className="flex-shrink-0 w-[320px] snap-center flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:scale-[1.02] select-none"
                 >
                   <div className="relative h-48 w-full overflow-hidden border-b border-[#353534]">
                     <Image
