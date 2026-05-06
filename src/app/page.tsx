@@ -16,16 +16,24 @@ async function getLatestRelease() {
     const res = await fetch(
       "https://api.github.com/repos/Kena-AT/Coda_Web/releases/latest",
       {
-        next: { revalidate: 3600 }, // Revalidate every hour
+        next: { revalidate: 3600 },
       }
     );
 
-    if (!res.ok) throw new Error("Failed to fetch release");
+    if (res.status === 404) {
+      console.warn("No GitHub releases found for Kena-AT/Coda_Web. Using fallback data.");
+      return fallbackRelease;
+    }
+
+    if (!res.ok) {
+      console.error(`GitHub API error: ${res.status} ${res.statusText}`);
+      return fallbackRelease;
+    }
 
     const data = await res.json();
     
-    const exeAsset = data.assets.find((a: any) => a.name.endsWith(".exe"));
-    const msiAsset = data.assets.find((a: any) => a.name.endsWith(".msi"));
+    const exeAsset = data.assets?.find((a: any) => a.name.endsWith(".exe"));
+    const msiAsset = data.assets?.find((a: any) => a.name.endsWith(".msi"));
 
     return {
       version: data.tag_name || fallbackRelease.version,
@@ -40,7 +48,7 @@ async function getLatestRelease() {
       sha256: fallbackRelease.sha256,
     };
   } catch (error) {
-    console.error("Release fetch error:", error);
+    console.error("Network or unexpected error during release fetch:", error);
     return fallbackRelease;
   }
 }
