@@ -70,7 +70,7 @@ export function Footer() {
             SYSTEM_CHANNEL
           </div>
           <div className="flex items-center gap-6 text-xs font-mono text-[#e9bcb5]">
-            <Link href="https://github.com/Kena-AT/Coda_Web">GITHUB</Link>
+            <Link href="https://github.com/Kena-AT/Coda" target="_blank" rel="noopener noreferrer">GITHUB</Link>
             <Link href="#download">DOWNLOAD</Link>
           </div>
         </div>

@@ -14,14 +14,14 @@ import fallbackRelease from "@/data/fallback-release.json";
 async function getLatestRelease() {
   try {
     const res = await fetch(
-      "https://api.github.com/repos/Kena-AT/Coda_Web/releases/latest",
+      "https://api.github.com/repos/Kena-AT/Coda/releases/latest",
       {
         next: { revalidate: 3600 },
       }
     );
 
     if (res.status === 404) {
-      console.warn("No GitHub releases found for Kena-AT/Coda_Web. Using fallback data.");
+      console.warn("No GitHub releases found for Kena-AT/Coda. Using fallback data.");
       return fallbackRelease;
     }
 
@@ -96,7 +96,9 @@ export default async function Home() {
               DEPLOY_NOW
             </a>
             <a
-              href="https://github.com/Kena-AT/Coda_Web"
+              href="https://github.com/Kena-AT/Coda"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-3 border-2 border-[#e5e2e1] px-8 py-4 text-sm font-bold tracking-[0.2em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
             >
               SYSTEM_LOGS
@@ -336,7 +338,9 @@ export default async function Home() {
                 {release.notes}
               </p>
               <a
-                href="https://github.com/Kena-AT/Coda_Web/releases"
+                href="https://github.com/Kena-AT/Coda/releases"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-auto font-mono text-xs text-[#e5e2e1] underline"
               >
                 READ_FULL_CHANGELOG
