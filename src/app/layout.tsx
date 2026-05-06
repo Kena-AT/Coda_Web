@@ -24,8 +24,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Coda - Snippet Management Tool",
-  description: "A fast, reliable, and secure snippet management tool for developers.",
+  title: "Coda | Local-First Snippet Manager for Developers",
+  description: "Secure, offline-first snippet management with AI-powered search, version control, and privacy-focused usage analytics. Engineered for high-velocity developers.",
+  keywords: ["snippet manager", "code snippets", "developer tools", "local-first", "AI code search", "offline snippet tool"],
 };
 
 import { LayoutWrapper } from "@/components/Layout";
