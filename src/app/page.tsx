@@ -11,15 +11,16 @@ import Screenshot11 from "@/assets/Screenshot (11).png";
 import Screenshot12 from "@/assets/Screenshot (12).png";
 import fallbackRelease from "@/data/fallback-release.json";
 import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
+import { DownloadButton, ShaCopy, SystemStatus } from "@/components/InteractiveElements";
 
-async function getLatestRelease() {
-  const timeout = 5000; // 5 seconds timeout
+async function getReleaseData() {
+  const timeout = 5000;
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
   try {
     const res = await fetch(
-      "https://api.github.com/repos/Kena-AT/Coda/releases/latest",
+      "https://api.github.com/repos/Kena-AT/Coda/releases?per_page=3",
       {
         next: { revalidate: 3600 },
         signal: controller.signal,
@@ -27,25 +28,20 @@ async function getLatestRelease() {
     );
     clearTimeout(id);
 
-    if (res.status === 404) {
-      console.warn("No GitHub releases found. Falling back to local data.");
-      return { ...fallbackRelease, source: "fallback" };
-    }
-
     if (!res.ok) {
       console.error(`GitHub API error: ${res.status}`);
-      return { ...fallbackRelease, source: "fallback" };
+      return { latest: { ...fallbackRelease, source: "fallback" }, history: [] };
     }
 
-    const data = await res.json();
+    const releases = await res.json();
     
-    // Basic schema validation
-    if (!data || !data.tag_name || !data.assets) {
-      throw new Error("Invalid API response structure");
+    if (!Array.isArray(releases) || releases.length === 0) {
+      return { latest: { ...fallbackRelease, source: "fallback" }, history: [] };
     }
 
-    const exeAsset = data.assets?.find((a: any) => a.name.endsWith(".exe"));
-    const msiAsset = data.assets?.find((a: any) => a.name.endsWith(".msi"));
+    const latestData = releases[0];
+    const exeAsset = latestData.assets?.find((a: any) => a.name.endsWith(".exe"));
+    const msiAsset = latestData.assets?.find((a: any) => a.name.endsWith(".msi"));
 
     const formatSize = (bytes: number) => {
       if (!bytes) return "N/A";
@@ -53,14 +49,15 @@ async function getLatestRelease() {
       return `${mb.toFixed(1)} MB`;
     };
 
-    return {
-      version: data.tag_name,
-      date: data.published_at ? new Date(data.published_at).toLocaleDateString("en-US", {
+    const latest = {
+      version: latestData.tag_name,
+      date: latestData.published_at ? new Date(latestData.published_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       }) : fallbackRelease.date,
-      notes: data.body ? data.body.split('\n')[0] : fallbackRelease.notes,
+      notes: latestData.body ? latestData.body.split('\n')[0] : fallbackRelease.notes,
+      fullNotes: latestData.body || "",
       exeUrl: exeAsset?.browser_download_url || fallbackRelease.exeUrl,
       msiUrl: msiAsset?.browser_download_url || fallbackRelease.msiUrl,
       exeSize: formatSize(exeAsset?.size),
@@ -70,19 +67,22 @@ async function getLatestRelease() {
       sha256: fallbackRelease.sha256,
       source: "api"
     };
+
+    const history = releases.slice(1).map((r: any) => ({
+      version: r.tag_name,
+      date: new Date(r.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      summary: r.body ? r.body.split('\n')[0] : "Maintenance update."
+    }));
+
+    return { latest, history };
   } catch (error: any) {
     clearTimeout(id);
-    if (error.name === 'AbortError') {
-      console.error("GitHub API request timed out. Using fallback.");
-    } else {
-      console.error("Release fetch error:", error.message);
-    }
-    return { ...fallbackRelease, source: "fallback" };
+    return { latest: { ...fallbackRelease, source: "fallback" }, history: [] };
   }
 }
 
 export default async function Home() {
-  const release = await getLatestRelease();
+  const { latest, history } = await getReleaseData();
   
   const screenshots = [
     { image: Screenshot3, label: "SEARCH_MATRIX // GLOBAL_INDEX" },
@@ -104,8 +104,11 @@ export default async function Home() {
           <div className="h-full w-full bg-[radial-gradient(circle_at_top,_#e60000_0%,_transparent_55%)]" />
         </div>
         <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-10 text-center">
-          <div className="border border-[#e60000] bg-[#e6000005] px-3 py-1 font-mono text-[10px] font-bold tracking-[0.15em] text-[#e60000]">
-            SYSTEM_LOAD_COMPLETE // {release.version}-STABLE
+          <div className="flex flex-col items-center gap-4">
+            <div className="border border-[#e60000] bg-[#e6000005] px-3 py-1 font-mono text-[10px] font-bold tracking-[0.15em] text-[#e60000]">
+              SYSTEM_LOAD_COMPLETE // {latest.version}-STABLE
+            </div>
+            <SystemStatus source={latest.source} />
           </div>
           <div className="font-display text-[clamp(2rem,8vw,4.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
@@ -176,7 +179,6 @@ export default async function Home() {
             <div className="h-1 w-24 bg-[#e60000]" />
           </div>
           <div className="grid gap-3 lg:grid-cols-12 auto-rows-min">
-            {/* Top row: 8+4 split */}
             <div className="lg:col-span-8 flex flex-col sm:flex-row gap-6 bg-[#201f1f] border border-[#353534] p-6 lg:p-8 items-center">
               <div className="flex-1 flex flex-col gap-3">
                 <span className="font-mono text-[9px] font-bold tracking-[0.08em] text-[#e60000]">PROTOCOL_01</span>
@@ -195,7 +197,6 @@ export default async function Home() {
               <span className="mt-auto pt-3 text-[9px] font-mono text-[#e9bcb5] border-t border-[#353534]">TRACKING_STATE // ACTIVE</span>
             </div>
 
-            {/* Second row: 4+4+4 split */}
             <div className="lg:col-span-4 flex flex-col gap-3 bg-[#0e0e0e] border border-[#353534] p-6">
               <span className="font-mono text-[9px] font-bold tracking-[0.08em] text-[#e60000]">PROTOCOL_03</span>
               <div className="flex items-center justify-center py-2">
@@ -217,7 +218,6 @@ export default async function Home() {
               <p className="text-[11px] text-[#a09999]">Gain insights into your coding patterns. Track snippet usage and velocity.</p>
             </div>
 
-            {/* Third row: 6+6 split */}
             <div className="lg:col-span-6 flex flex-col gap-3 bg-[#201f1f] border border-[#e60000]/50 p-6 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-[#e60000]/10 to-transparent pointer-events-none" />
               <span className="relative font-mono text-[9px] font-bold tracking-[0.08em] text-[#e60000]">PROTOCOL_06</span>
@@ -250,92 +250,80 @@ export default async function Home() {
             <div className="grid gap-8 md:grid-cols-2">
               <div className="flex flex-col gap-6">
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    OS_ARCHITECTURE
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">OS_ARCHITECTURE</div>
                   <div className="text-[#e5e2e1]">Windows 10 / 11 (64-bit)</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    PROCESSOR_UNIT
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">PROCESSOR_UNIT</div>
                   <div className="text-[#e5e2e1]">1.6 GHz or faster processor</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    MEMORY_BUFFER
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">MEMORY_BUFFER</div>
                   <div className="text-[#e5e2e1]">4 GB RAM minimum</div>
                 </div>
               </div>
               <div className="flex flex-col gap-6">
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    STORAGE_VAULT
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">STORAGE_VAULT</div>
                   <div className="text-[#e5e2e1]">200 MB available space</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    DISPLAY_MATRIX
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">DISPLAY_MATRIX</div>
                   <div className="text-[#e5e2e1]">1280 x 800 resolution</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
-                    DEPENDENCY_CHECK
-                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">DEPENDENCY_CHECK</div>
                   <div className="text-[#e5e2e1]">Edge WebView2 Runtime</div>
                 </div>
               </div>
-            </div>
-            <div className="mt-10 border-t border-[#353534] pt-6 font-mono text-[10px] text-[#e9bcb5]">
-              // SYSTEM_COMPATIBILITY_VERIFIED_V.1.0.0
             </div>
           </div>
         </div>
       </section>
 
-      <section
-        id="download"
-        className="border-y border-[#353534] bg-[#0e0e0e] px-6 py-24"
-      >
+      <section id="download" className="border-y border-[#353534] bg-[#0e0e0e] px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4">
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">
-              RELEASE_INTELLIGENCE
-            </h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">RELEASE_INTELLIGENCE</h2>
             <div className="h-1 w-32 bg-[#e60000]" />
           </div>
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="group relative flex flex-col gap-6 bg-[#131313] border border-[#353534] p-10 hover:border-[#e60000] transition-colors duration-500">
-              <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
-                BUILD_STATUS
-              </div>
-              <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                {release.version}_STABLE
-              </div>
+              <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">BUILD_STATUS</div>
+              <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">{latest.version}_STABLE</div>
               <div className="space-y-2 text-sm text-[#e9bcb5]">
-                <p>Released {release.date} · Windows x64</p>
+                <p>Released {latest.date} · Windows x64</p>
                 <div className="flex gap-4 font-mono text-[10px] text-[#e60000]">
-                  <span>EXE: {release.exeSize}</span>
-                  <span>MSI: {release.msiSize}</span>
+                  <span>EXE: {latest.exeSize}</span>
+                  <span>MSI: {latest.msiSize}</span>
                 </div>
               </div>
               <div className="mt-auto pt-6 border-t border-[#353534] font-mono text-[10px] text-[#e5e2e1]">
-                SHA256 // {release.sha256}
+                <ShaCopy hash={latest.sha256} />
               </div>
             </div>
             <div className="group relative flex flex-col gap-6 bg-[#131313] border border-[#353534] p-10 hover:border-[#e60000] transition-colors duration-500">
-              <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
-                RELEASE_NOTES
+              <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">CHANGELOG_SYSTEM</div>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[10px] text-[#e60000]">{latest.version}</span>
+                    <span className="h-[1px] flex-1 bg-[#353534]" />
+                    <span className="font-mono text-[9px] text-[#a09999]">CURRENT</span>
+                  </div>
+                  <p className="text-xs text-[#e5e2e1] leading-relaxed">{latest.notes}</p>
+                </div>
+                {history.map((release, i) => (
+                  <div key={i} className="flex flex-col gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[10px] text-[#e9bcb5]">{release.version}</span>
+                      <span className="h-[1px] flex-1 bg-[#353534]" />
+                      <span className="font-mono text-[9px] text-[#a09999] uppercase">{release.date}</span>
+                    </div>
+                    <p className="text-[11px] text-[#a09999] italic">{release.summary}</p>
+                  </div>
+                ))}
               </div>
-              <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                LATEST_PATCH
-              </div>
-              <p className="text-sm text-[#e9bcb5]">
-                {release.notes}
-              </p>
               <a
                 href="https://github.com/Kena-AT/Coda/releases"
                 target="_blank"
@@ -349,34 +337,44 @@ export default async function Home() {
           <div className="flex flex-col items-center gap-12">
             <div className="flex flex-wrap justify-center gap-8">
               <div className="flex flex-col items-center gap-4">
-                <a
-                  href={release.exeUrl}
-                  className="group relative px-12 py-5 bg-[#e60000] text-sm font-bold tracking-[0.2em] text-white transition-all hover:scale-105 active:scale-95"
+                <DownloadButton 
+                  href={latest.exeUrl} 
+                  type="EXE" 
+                  version={latest.version}
+                  variant="primary"
                 >
-                  <div className="relative z-10">DOWNLOAD_EXE</div>
-                  <div className="absolute inset-0 border border-white/20 translate-x-1 translate-y-1 -z-0 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                </a>
+                  DOWNLOAD_EXE
+                </DownloadButton>
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-mono text-[10px] text-[#e60000]">RECOMMENDED_STABLE</span>
-                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{release.exeDownloads} DEPLOYMENTS</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.exeDownloads} DEPLOYMENTS</span>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-4">
-                <a
-                  href={release.msiUrl}
-                  className="group relative px-12 py-5 border-2 border-[#e5e2e1] text-sm font-bold tracking-[0.2em] text-[#e5e2e1] transition-all hover:bg-[#e5e2e1] hover:text-[#131313] active:scale-95"
+                <DownloadButton 
+                  href={latest.msiUrl} 
+                  type="MSI" 
+                  version={latest.version}
+                  variant="secondary"
                 >
-                  <div className="relative z-10">DOWNLOAD_MSI</div>
-                  <div className="absolute inset-0 border border-[#e5e2e1]/20 translate-x-1 translate-y-1 -z-0 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
-                </a>
+                  DOWNLOAD_MSI
+                </DownloadButton>
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-mono text-[10px] text-[#e9bcb5]">ENTERPRISE_READY</span>
-                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{release.msiDownloads} DEPLOYMENTS</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.msiDownloads} DEPLOYMENTS</span>
                 </div>
               </div>
             </div>
-            <div className="max-w-xl text-center font-mono text-[10px] text-[#e60000]/60 tracking-widest">
-              // SECURE_DISTRIBUTION_PROTOCOL_ACTIVE // SHA256_VERIFICATION_REQUIRED
+            <div className="flex flex-col items-center gap-6">
+              <div className="max-w-xl text-center font-mono text-[10px] text-[#e60000]/60 tracking-widest">// SECURE_DISTRIBUTION_PROTOCOL_ACTIVE // SHA256_VERIFICATION_REQUIRED</div>
+              <a 
+                href="https://github.com/Kena-AT/Coda/releases" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="font-mono text-[9px] text-[#e9bcb5] hover:text-[#e60000] underline decoration-[#e60000]/30 underline-offset-4 transition-colors"
+              >
+                SECONDARY_ACCESS // GITHUB_MIRROR
+              </a>
             </div>
           </div>
         </div>
