@@ -87,28 +87,39 @@ export default function Home() {
               SYSTEM_PREVIEWS
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
+            <p className="font-mono text-xs text-[#e9bcb5]">
+              DRAG_TO_EXPLORE // SCROLL_HORIZONTALLY
+            </p>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {screenshots.map((card) => (
-              <div
-                key={card.label}
-                className="flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:-translate-y-1"
-              >
-                <div className="relative h-64 w-full overflow-hidden border-b border-[#353534]">
-                  <Image
-                    src={card.image}
-                    alt={card.label}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover opacity-80 hover:opacity-100 transition-opacity"
-                    quality={85}
-                  />
+          <div className="relative">
+            <div
+              className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-[#131313] scrollbar-thumb-[#e60000] scroll-smooth snap-x snap-mandatory cursor-grab active:cursor-grabbing"
+              style={{ scrollbarWidth: 'thin' }}
+            >
+              {screenshots.map((card) => (
+                <div
+                  key={card.label}
+                  className="flex-shrink-0 w-[320px] snap-center flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:scale-[1.02]"
+                >
+                  <div className="relative h-48 w-full overflow-hidden border-b border-[#353534]">
+                    <Image
+                      src={card.image}
+                      alt={card.label}
+                      fill
+                      sizes="320px"
+                      className="object-cover opacity-80 hover:opacity-100 transition-opacity pointer-events-none select-none"
+                      quality={85}
+                      draggable={false}
+                    />
+                  </div>
+                  <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
+                    {card.label}
+                  </div>
                 </div>
-                <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
-                  {card.label}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#131313] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#131313] to-transparent" />
           </div>
         </div>
       </section>
