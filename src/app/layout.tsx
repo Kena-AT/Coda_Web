@@ -30,6 +30,7 @@ export const metadata: Metadata = {
 };
 
 import { LayoutWrapper } from "@/components/Layout";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function RootLayout({
   children,
@@ -43,6 +44,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <LayoutWrapper>{children}</LayoutWrapper>
+        <Analytics />
       </body>
     </html>
   );
