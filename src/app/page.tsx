@@ -10,6 +10,7 @@ import Screenshot10 from "@/assets/Screenshot (10).png";
 import Screenshot11 from "@/assets/Screenshot (11).png";
 import Screenshot12 from "@/assets/Screenshot (12).png";
 import fallbackRelease from "@/data/fallback-release.json";
+import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
 
 async function getLatestRelease() {
   try {
@@ -134,29 +135,11 @@ export default async function Home() {
               SYSTEM_PREVIEWS
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
+            <p className="font-mono text-[11px] tracking-wide text-[#e9bcb5]">
+              DRAG_TO_EXPLORE // SCROLL_HORIZONTALLY
+            </p>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {screenshots.map((card) => (
-              <div
-                key={card.label}
-                className="flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:-translate-y-1"
-              >
-                <div className="relative h-64 w-full overflow-hidden border-b border-[#353534]">
-                  <Image
-                    src={card.image}
-                    alt={card.label}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover opacity-80 hover:opacity-100 transition-opacity"
-                    quality={85}
-                  />
-                </div>
-                <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
-                  {card.label}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ScreenshotCarousel screenshots={screenshots} />
         </div>
       </section>
 
@@ -234,6 +217,18 @@ export default async function Home() {
                 <p className="text-sm text-[#e9bcb5]">
                   Gain insights into your coding patterns. Track snippet usage and velocity
                   with privacy-focused, local telemetry.
+                </p>
+              </div>
+              <div className="flex flex-col gap-6 border border-[#e60000] bg-[#e6000005] p-10">
+                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                  FEATURE_06
+                </div>
+                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
+                  CODA_INTELLIGENCE
+                </div>
+                <p className="text-sm text-[#e9bcb5]">
+                  Harness local-first AI. Semantic search, automatic explanation, and 
+                  intelligent code completion powered by a secure, neural processing layer.
                 </p>
               </div>
             </div>
