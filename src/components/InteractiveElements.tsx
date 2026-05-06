@@ -65,11 +65,30 @@ export function ShaCopy({ hash }: { hash: string }) {
 
 export function SystemStatus({ source }: { source: string }) {
   return (
-    <div className="flex items-center gap-2 font-mono text-[9px]">
-      <div className={`h-1.5 w-1.5 rounded-full ${source === "api" ? "bg-green-500 shadow-[0_0_5px_#22c55e]" : "bg-yellow-500 animate-pulse shadow-[0_0_5px_#eab308]"}`} />
-      <span className={source === "api" ? "text-green-500/70" : "text-yellow-500/70"}>
-        {source === "api" ? "GITHUB_API_LINK_ACTIVE" : "FALLBACK_MODE_ACTIVE"}
-      </span>
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-2 font-mono text-[9px]">
+        <div className={`h-1.5 w-1.5 rounded-full ${source === "api" ? "bg-green-500 shadow-[0_0_5px_#22c55e]" : "bg-yellow-500 animate-pulse shadow-[0_0_5px_#eab308]"}`} />
+        <span className={source === "api" ? "text-green-500/70" : "text-yellow-500/70"}>
+          {source === "api" ? "GITHUB_API_LINK_ACTIVE" : "FALLBACK_MODE_ACTIVE"}
+        </span>
+      </div>
+      {source !== "api" && (
+        <div className="max-w-[200px] border border-yellow-500/30 bg-yellow-500/5 px-2 py-1 font-mono text-[8px] text-yellow-500/80 leading-tight">
+          SYSTEM_NOTE: CONNECTIVITY_LIMITED. SERVING_CACHED_ASSETS. VERIFY_LATEST_ON_GITHUB.
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function FallbackNote() {
+  return (
+    <div className="mt-8 flex flex-col items-center gap-4 border border-[#e60000]/20 bg-[#e60000]/5 p-6 text-center">
+      <div className="font-mono text-[10px] font-bold text-[#e60000]">DOWNLOAD_GUIDANCE // TROUBLESHOOTING</div>
+      <p className="max-w-md text-[11px] text-[#e9bcb5] leading-relaxed">
+        If primary links fail to initialize, please use the <a href="https://github.com/Kena-AT/Coda/releases" target="_blank" className="underline hover:text-[#e60000]">GitHub Mirror</a> directly. 
+        For system-wide deployment issues, report via <a href="https://github.com/Kena-AT/Coda/issues" target="_blank" className="underline hover:text-[#e60000]">Incident_Response</a>.
+      </p>
     </div>
   );
 }

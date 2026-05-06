@@ -11,7 +11,7 @@ import Screenshot11 from "@/assets/Screenshot (11).png";
 import Screenshot12 from "@/assets/Screenshot (12).png";
 import fallbackRelease from "@/data/fallback-release.json";
 import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
-import { DownloadButton, ShaCopy, SystemStatus } from "@/components/InteractiveElements";
+import { DownloadButton, ShaCopy, SystemStatus, FallbackNote } from "@/components/InteractiveElements";
 
 async function getReleaseData() {
   const timeout = 5000;
@@ -365,7 +365,7 @@ export default async function Home() {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center gap-6 w-full">
               <div className="max-w-xl text-center font-mono text-[10px] text-[#e60000]/60 tracking-widest">// SECURE_DISTRIBUTION_PROTOCOL_ACTIVE // SHA256_VERIFICATION_REQUIRED</div>
               <a 
                 href="https://github.com/Kena-AT/Coda/releases" 
@@ -375,6 +375,7 @@ export default async function Home() {
               >
                 SECONDARY_ACCESS // GITHUB_MIRROR
               </a>
+              {latest.source !== "api" && <FallbackNote />}
             </div>
           </div>
         </div>
