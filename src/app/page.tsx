@@ -149,88 +149,82 @@ export default async function Home() {
             <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">CORE_FEATURES</h2>
             <div className="h-1 w-32 bg-[#e60000]" />
           </div>
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="col-span-2 flex flex-col gap-6">
-              <div className="flex flex-col gap-8 border border-[#353534] bg-[#201f1f] p-10 text-left">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  FEATURE_01
-                </div>
-                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                  SMART_SNIPPET_MANAGEMENT
-                </div>
-                <p className="text-sm text-[#e9bcb5]">
-                  Organize your code with precision. Tag, categorize, and manage thousands
-                  of snippets with zero lag. Local-first architecture ensures your data
-                  never leaves your machine.
-                </p>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_01
               </div>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="flex flex-col gap-4 border border-[#e60000] bg-[#0e0e0e] p-10">
-                  <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                    FEATURE_03
-                  </div>
-                  <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                    LIGHTNING_SEARCH
-                  </div>
-                  <p className="text-sm text-[#e9bcb5]">
-                    Find any snippet in under 100ms. Our optimized search matrix handles
-                    complex queries across all your local vaults instantly.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-10">
-                  <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                    FEATURE_04
-                  </div>
-                  <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                    OFFLINE_FIRST
-                  </div>
-                  <p className="text-sm text-[#e9bcb5]">
-                    Engineered for reliability. Access and edit your snippets even without
-                    an internet connection. Full local encryption included.
-                  </p>
-                </div>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                SMART_SNIPPET_MANAGEMENT
+              </div>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Organize your code with precision. Tag, categorize, and manage thousands
+                of snippets with zero lag. Local-first architecture ensures your data
+                never leaves your machine.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_02
+              </div>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                VERSION_CONTROL
+              </div>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Every edit is tracked. Roll back to any previous version of a snippet with
+                built-in diffing and snapshot history.
+              </p>
+              <div className="mt-auto border border-[#353534] bg-[#2a2a2a] px-3 py-2 text-[11px] font-mono text-[#e5e2e1]">
+                TRACKING_STATE // ACTIVE
               </div>
             </div>
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-6 border border-[#353534] bg-[#201f1f] p-10">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  FEATURE_02
-                </div>
-                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                  VERSION_CONTROL
-                </div>
-                <p className="text-sm text-[#e9bcb5]">
-                  Every edit is tracked. Roll back to any previous version of a snippet with
-                  built-in diffing and snapshot history.
-                </p>
-                <div className="mt-4 border border-[#353534] bg-[#2a2a2a] px-4 py-3 text-xs font-mono text-[#e5e2e1]">
-                  TRACKING_STATE // ACTIVE
-                </div>
+            <div className="flex flex-col gap-4 border border-[#e60000] bg-[#0e0e0e] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_03
               </div>
-              <div className="flex flex-col gap-6 border border-[#353534] bg-[#201f1f] p-10">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  FEATURE_05
-                </div>
-                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                  USAGE_ANALYTICS
-                </div>
-                <p className="text-sm text-[#e9bcb5]">
-                  Gain insights into your coding patterns. Track snippet usage and velocity
-                  with privacy-focused, local telemetry.
-                </p>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                LIGHTNING_SEARCH
               </div>
-              <div className="flex flex-col gap-6 border border-[#e60000] bg-[#e6000005] p-10">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  FEATURE_06
-                </div>
-                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                  CODA_INTELLIGENCE
-                </div>
-                <p className="text-sm text-[#e9bcb5]">
-                  Harness local-first AI. Semantic search, automatic explanation, and 
-                  intelligent code completion powered by a secure, neural processing layer.
-                </p>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Find any snippet in under 100ms. Our optimized search matrix handles
+                complex queries across all your local vaults instantly.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_04
               </div>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                OFFLINE_FIRST
+              </div>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Engineered for reliability. Access and edit your snippets even without
+                an internet connection. Full local encryption included.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_05
+              </div>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                USAGE_ANALYTICS
+              </div>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Gain insights into your coding patterns. Track snippet usage and velocity
+                with privacy-focused, local telemetry.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4 border border-[#e60000] bg-[#e6000005] p-8">
+              <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
+                FEATURE_06
+              </div>
+              <div className="font-display text-lg font-bold text-[#e5e2e1]">
+                CODA_INTELLIGENCE
+              </div>
+              <p className="text-sm leading-relaxed text-[#e9bcb5]">
+                Harness local-first AI. Semantic search, automatic explanation, and
+                intelligent code completion powered by a secure, neural processing layer.
+              </p>
             </div>
           </div>
         </div>
