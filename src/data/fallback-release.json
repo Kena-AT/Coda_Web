@@ -4,5 +4,9 @@
   "notes": "Initial stable release with core snippet management features.",
   "exeUrl": "/Coda_1.0.0_x64-setup.exe",
   "msiUrl": "/Coda_1.0.0_x64_en-US.msi",
+  "exeSize": "64.5 MB",
+  "msiSize": "68.2 MB",
+  "exeDownloads": 0,
+  "msiDownloads": 0,
   "sha256": "AVAILABLE_ON_GITHUB"
 }

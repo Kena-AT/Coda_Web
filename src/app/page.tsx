@@ -36,6 +36,12 @@ async function getLatestRelease() {
     const exeAsset = data.assets?.find((a: any) => a.name.endsWith(".exe"));
     const msiAsset = data.assets?.find((a: any) => a.name.endsWith(".msi"));
 
+    const formatSize = (bytes: number) => {
+      if (!bytes) return "N/A";
+      const mb = bytes / (1024 * 1024);
+      return `${mb.toFixed(1)} MB`;
+    };
+
     return {
       version: data.tag_name || fallbackRelease.version,
       date: data.published_at ? new Date(data.published_at).toLocaleDateString("en-US", {
@@ -46,6 +52,10 @@ async function getLatestRelease() {
       notes: data.body ? data.body.split('\n')[0] : fallbackRelease.notes,
       exeUrl: exeAsset?.browser_download_url || fallbackRelease.exeUrl,
       msiUrl: msiAsset?.browser_download_url || fallbackRelease.msiUrl,
+      exeSize: formatSize(exeAsset?.size),
+      msiSize: formatSize(msiAsset?.size),
+      exeDownloads: exeAsset?.download_count || 0,
+      msiDownloads: msiAsset?.download_count || 0,
       sha256: fallbackRelease.sha256,
     };
   } catch (error) {
@@ -285,23 +295,25 @@ export default async function Home() {
             <div className="h-1 w-32 bg-[#e60000]" />
           </div>
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-10 shadow-[4px_4px_0_#131313]">
+            <div className="group relative flex flex-col gap-6 bg-[#131313] border border-[#353534] p-10 hover:border-[#e60000] transition-colors duration-500">
               <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
                 BUILD_STATUS
               </div>
               <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
                 {release.version}_STABLE
               </div>
-              <p className="text-sm text-[#e9bcb5]">
-                Released {release.date} · Windows x64 · Hardened release channel.
-                <br />
-                Available as standalone executable (.exe) and installer package (.msi).
-              </p>
-              <div className="mt-auto font-mono text-xs text-[#e5e2e1]">
+              <div className="space-y-2 text-sm text-[#e9bcb5]">
+                <p>Released {release.date} · Windows x64</p>
+                <div className="flex gap-4 font-mono text-[10px] text-[#e60000]">
+                  <span>EXE: {release.exeSize}</span>
+                  <span>MSI: {release.msiSize}</span>
+                </div>
+              </div>
+              <div className="mt-auto pt-6 border-t border-[#353534] font-mono text-[10px] text-[#e5e2e1]">
                 SHA256 // {release.sha256}
               </div>
             </div>
-            <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-10 shadow-[4px_4px_0_#131313]">
+            <div className="group relative flex flex-col gap-6 bg-[#131313] border border-[#353534] p-10 hover:border-[#e60000] transition-colors duration-500">
               <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
                 RELEASE_NOTES
               </div>
@@ -315,35 +327,43 @@ export default async function Home() {
                 href="https://github.com/Kena-AT/Coda/releases"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-auto font-mono text-xs text-[#e5e2e1] underline"
+                className="mt-auto flex items-center gap-2 font-mono text-xs text-[#e5e2e1] hover:text-[#e60000] transition-colors"
               >
-                READ_FULL_CHANGELOG
+                READ_FULL_CHANGELOG <span className="text-[10px]">{"->"}</span>
               </a>
             </div>
           </div>
-          <div className="flex flex-col items-center gap-8">
-            <div className="flex flex-wrap justify-center gap-6">
-              <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-12">
+            <div className="flex flex-wrap justify-center gap-8">
+              <div className="flex flex-col items-center gap-4">
                 <a
                   href={release.exeUrl}
-                  className="bg-[#e60000] px-10 py-5 text-sm font-bold tracking-[0.2em] text-white shadow-[4px_4px_0_#131313]"
+                  className="group relative px-12 py-5 bg-[#e60000] text-sm font-bold tracking-[0.2em] text-white transition-all hover:scale-105 active:scale-95"
                 >
-                  DOWNLOAD_EXE
+                  <div className="relative z-10">DOWNLOAD_EXE</div>
+                  <div className="absolute inset-0 border border-white/20 translate-x-1 translate-y-1 -z-0 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
                 </a>
-                <span className="font-mono text-[10px] text-[#e9bcb5]">RECOMMENDED_FOR_MOST_USERS</span>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="font-mono text-[10px] text-[#e60000]">RECOMMENDED_STABLE</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{release.exeDownloads} DEPLOYMENTS</span>
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-4">
                 <a
                   href={release.msiUrl}
-                  className="border-2 border-[#e5e2e1] px-10 py-5 text-sm font-bold tracking-[0.2em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
+                  className="group relative px-12 py-5 border-2 border-[#e5e2e1] text-sm font-bold tracking-[0.2em] text-[#e5e2e1] transition-all hover:bg-[#e5e2e1] hover:text-[#131313] active:scale-95"
                 >
-                  DOWNLOAD_MSI
+                  <div className="relative z-10">DOWNLOAD_MSI</div>
+                  <div className="absolute inset-0 border border-[#e5e2e1]/20 translate-x-1 translate-y-1 -z-0 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform" />
                 </a>
-                <span className="font-mono text-[10px] text-[#e9bcb5]">ENTERPRISE_DEPLOYMENT_READY</span>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="font-mono text-[10px] text-[#e9bcb5]">ENTERPRISE_READY</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{release.msiDownloads} DEPLOYMENTS</span>
+                </div>
               </div>
             </div>
-            <div className="max-w-xl text-center font-mono text-[10px] text-[#e9bcb5]">
-              // ALL_BUILDS_ARE_DIGITALLY_SIGNED_AND_VERIFIED_FOR_INTEGRITY
+            <div className="max-w-xl text-center font-mono text-[10px] text-[#e60000]/60 tracking-widest">
+              // SECURE_DISTRIBUTION_PROTOCOL_ACTIVE // SHA256_VERIFICATION_REQUIRED
             </div>
           </div>
         </div>
