@@ -2,8 +2,28 @@ import Image from "next/image";
 import Screenshot3 from "@/assets/Screenshot (3).png";
 import Screenshot4 from "@/assets/Screenshot (4).png";
 import Screenshot5 from "@/assets/Screenshot (5).png";
+import Screenshot6 from "@/assets/Screenshot (6).png";
+import Screenshot7 from "@/assets/Screenshot (7).png";
+import Screenshot8 from "@/assets/Screenshot (8).png";
+import Screenshot9 from "@/assets/Screenshot (9).png";
+import Screenshot10 from "@/assets/Screenshot (10).png";
+import Screenshot11 from "@/assets/Screenshot (11).png";
+import Screenshot12 from "@/assets/Screenshot (12).png";
 
 export default function Home() {
+  const screenshots = [
+    { image: Screenshot3, label: "SEARCH_MATRIX // GLOBAL_INDEX" },
+    { image: Screenshot4, label: "VAULT_EXPLORER // LOCAL_STORAGE" },
+    { image: Screenshot5, label: "EDITOR_INTEGRATION // SNIPPET_SYNC" },
+    { image: Screenshot6, label: "VERSION_CONTROL // DIFF_VIEW" },
+    { image: Screenshot7, label: "ANALYTICS_DASHBOARD // USAGE_METRICS" },
+    { image: Screenshot8, label: "THEME_ENGINE // MATRIX_PROTOCOL" },
+    { image: Screenshot9, label: "VAULT_ENCRYPTION // SECURITY_LAYER" },
+    { image: Screenshot10, label: "COMMAND_PALETTE // RAPID_ACCESS" },
+    { image: Screenshot11, label: "SNIPPET_EDITOR // SYNTAX_HIGHLIGHT" },
+    { image: Screenshot12, label: "NETWORK_CONFIG // OFFLINE_MODE" },
+  ];
+
   return (
     <div className="flex flex-col w-full">
       <section className="relative overflow-hidden bg-[#131313] px-6 pt-20 pb-0">
@@ -68,26 +88,23 @@ export default function Home() {
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
           </div>
-          <div className="grid gap-8 lg:grid-cols-3">
-            {[
-              { image: Screenshot3, label: "VIEW_01 // SEARCH_MATRIX" },
-              { image: Screenshot4, label: "VIEW_02 // VAULT_INDEX" },
-              { image: Screenshot5, label: "VIEW_03 // EDITOR_ENV" },
-            ].map((card) => (
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {screenshots.map((card) => (
               <div
                 key={card.label}
-                className="flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313]"
+                className="flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:-translate-y-1"
               >
-                <div className="relative h-64 w-full overflow-hidden border-b border-[#353534] opacity-60">
+                <div className="relative h-64 w-full overflow-hidden border-b border-[#353534]">
                   <Image
                     src={card.image}
                     alt={card.label}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover opacity-80 hover:opacity-100 transition-opacity"
+                    quality={85}
                   />
                 </div>
-                <div className="px-6 py-4 font-mono text-xs tracking-[0.2em] text-[#e9bcb5]">
+                <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
                   {card.label}
                 </div>
               </div>
@@ -256,6 +273,8 @@ export default function Home() {
               </div>
               <p className="text-sm text-[#e9bcb5]">
                 Released May 2026 · Windows x64 · Hardened release channel.
+                <br />
+                Available as standalone executable (.exe) and installer package (.msi).
               </p>
               <div className="mt-auto font-mono text-xs text-[#e5e2e1]">
                 SHA256 // AVAILABLE_ON_GITHUB
@@ -279,19 +298,30 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-6">
-            <a
-              href="/Coda_1.0.0_x64-setup.exe"
-              className="bg-[#e60000] px-10 py-5 text-sm font-bold tracking-[0.2em] text-white shadow-[4px_4px_0_#131313]"
-            >
-              DOWNLOAD_EXE
-            </a>
-            <a
-              href="/Coda_1.0.0_x64_en-US.msi"
-              className="border-2 border-[#e5e2e1] px-10 py-5 text-sm font-bold tracking-[0.2em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
-            >
-              DOWNLOAD_MSI
-            </a>
+          <div className="flex flex-col items-center gap-8">
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex flex-col items-center gap-3">
+                <a
+                  href="/Coda_1.0.0_x64-setup.exe"
+                  className="bg-[#e60000] px-10 py-5 text-sm font-bold tracking-[0.2em] text-white shadow-[4px_4px_0_#131313]"
+                >
+                  DOWNLOAD_EXE
+                </a>
+                <span className="font-mono text-[10px] text-[#e9bcb5]">RECOMMENDED_FOR_MOST_USERS</span>
+              </div>
+              <div className="flex flex-col items-center gap-3">
+                <a
+                  href="/Coda_1.0.0_x64_en-US.msi"
+                  className="border-2 border-[#e5e2e1] px-10 py-5 text-sm font-bold tracking-[0.2em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
+                >
+                  DOWNLOAD_MSI
+                </a>
+                <span className="font-mono text-[10px] text-[#e9bcb5]">ENTERPRISE_DEPLOYMENT_READY</span>
+              </div>
+            </div>
+            <div className="max-w-xl text-center font-mono text-[10px] text-[#e9bcb5]">
+              // ALL_BUILDS_ARE_DIGITALLY_SIGNED_AND_VERIFIED_FOR_INTEGRITY
+            </div>
           </div>
         </div>
       </section>

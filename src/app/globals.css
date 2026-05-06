@@ -10,9 +10,6 @@
   --color-panel: #201f1f;
   --color-panel-dark: #0e0e0e;
   --color-stroke: #353534;
-  --font-display: "Space Grotesk", "Arial Black", sans-serif;
-  --font-mono: "Liberation Mono", "Courier New", monospace;
-  --font-body: "Liberation Sans", "Arial", sans-serif;
 }
 
 * {
