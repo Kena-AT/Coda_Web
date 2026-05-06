@@ -1,7 +1,4 @@
-"use client";
-
 import Image from "next/image";
-import { useRef, useState, useCallback } from "react";
 import Screenshot3 from "@/assets/Screenshot (3).png";
 import Screenshot4 from "@/assets/Screenshot (4).png";
 import Screenshot5 from "@/assets/Screenshot (5).png";
@@ -12,35 +9,45 @@ import Screenshot9 from "@/assets/Screenshot (9).png";
 import Screenshot10 from "@/assets/Screenshot (10).png";
 import Screenshot11 from "@/assets/Screenshot (11).png";
 import Screenshot12 from "@/assets/Screenshot (12).png";
+import fallbackRelease from "@/data/fallback-release.json";
 
-export default function Home() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartX = useRef(0);
-  const scrollStartX = useRef(0);
+async function getLatestRelease() {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/Kena-AT/Coda_Web/releases/latest",
+      {
+        next: { revalidate: 3600 }, // Revalidate every hour
+      }
+    );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return;
-    setIsDragging(true);
-    dragStartX.current = e.clientX;
-    scrollStartX.current = scrollContainerRef.current.scrollLeft;
-  }, []);
+    if (!res.ok) throw new Error("Failed to fetch release");
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
-    e.preventDefault();
-    const delta = dragStartX.current - e.clientX;
-    scrollContainerRef.current.scrollLeft = scrollStartX.current + delta;
-  }, [isDragging]);
+    const data = await res.json();
+    
+    const exeAsset = data.assets.find((a: any) => a.name.endsWith(".exe"));
+    const msiAsset = data.assets.find((a: any) => a.name.endsWith(".msi"));
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+    return {
+      version: data.tag_name || fallbackRelease.version,
+      date: data.published_at ? new Date(data.published_at).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }) : fallbackRelease.date,
+      notes: data.body ? data.body.split('\n')[0] : fallbackRelease.notes,
+      exeUrl: exeAsset?.browser_download_url || fallbackRelease.exeUrl,
+      msiUrl: msiAsset?.browser_download_url || fallbackRelease.msiUrl,
+      sha256: fallbackRelease.sha256,
+    };
+  } catch (error) {
+    console.error("Release fetch error:", error);
+    return fallbackRelease;
+  }
+}
 
-  const handleMouseLeave = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
+export default async function Home() {
+  const release = await getLatestRelease();
+  
   const screenshots = [
     { image: Screenshot3, label: "SEARCH_MATRIX // GLOBAL_INDEX" },
     { image: Screenshot4, label: "VAULT_EXPLORER // LOCAL_STORAGE" },
@@ -62,7 +69,7 @@ export default function Home() {
         </div>
         <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center gap-10 text-center">
           <div className="border border-[#e60000] bg-[#e6000005] px-4 py-1 font-mono text-xs font-bold tracking-[0.3em] text-[#e60000]">
-            SYSTEM_LOAD_COMPLETE // V.1.0.0-STABLE
+            SYSTEM_LOAD_COMPLETE // {release.version}-STABLE
           </div>
           <div className="font-display text-[clamp(2rem,8vw,4.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
@@ -117,44 +124,28 @@ export default function Home() {
               SYSTEM_PREVIEWS
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
-            <p className="font-mono text-xs text-[#e9bcb5]">
-              DRAG_TO_EXPLORE // SCROLL_HORIZONTALLY
-            </p>
           </div>
-          <div className="relative">
-            <div
-              ref={scrollContainerRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              className={`flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-track-[#131313] scrollbar-thumb-[#e60000] scroll-smooth snap-x snap-mandatory select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-              style={{ scrollbarWidth: 'thin' }}
-            >
-              {screenshots.map((card) => (
-                <div
-                  key={card.label}
-                  className="flex-shrink-0 w-[320px] snap-center flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:scale-[1.02] select-none"
-                >
-                  <div className="relative h-48 w-full overflow-hidden border-b border-[#353534]">
-                    <Image
-                      src={card.image}
-                      alt={card.label}
-                      fill
-                      sizes="320px"
-                      className="object-cover opacity-80 hover:opacity-100 transition-opacity pointer-events-none select-none"
-                      quality={85}
-                      draggable={false}
-                    />
-                  </div>
-                  <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
-                    {card.label}
-                  </div>
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {screenshots.map((card) => (
+              <div
+                key={card.label}
+                className="flex flex-col border border-[#353534] bg-[#0e0e0e] shadow-[4px_4px_0_#131313] transition-transform hover:-translate-y-1"
+              >
+                <div className="relative h-64 w-full overflow-hidden border-b border-[#353534]">
+                  <Image
+                    src={card.image}
+                    alt={card.label}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover opacity-80 hover:opacity-100 transition-opacity"
+                    quality={85}
+                  />
                 </div>
-              ))}
-            </div>
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#131313] to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#131313] to-transparent" />
+                <div className="px-6 py-4 font-mono text-[10px] tracking-[0.2em] text-[#e9bcb5]">
+                  {card.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -315,15 +306,15 @@ export default function Home() {
                 BUILD_STATUS
               </div>
               <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                V1.0.0_STABLE
+                {release.version}_STABLE
               </div>
               <p className="text-sm text-[#e9bcb5]">
-                Released May 2026 · Windows x64 · Hardened release channel.
+                Released {release.date} · Windows x64 · Hardened release channel.
                 <br />
                 Available as standalone executable (.exe) and installer package (.msi).
               </p>
               <div className="mt-auto font-mono text-xs text-[#e5e2e1]">
-                SHA256 // AVAILABLE_ON_GITHUB
+                SHA256 // {release.sha256}
               </div>
             </div>
             <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-10 shadow-[4px_4px_0_#131313]">
@@ -331,10 +322,10 @@ export default function Home() {
                 RELEASE_NOTES
               </div>
               <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
-                PATCHLINE_02
+                LATEST_PATCH
               </div>
               <p className="text-sm text-[#e9bcb5]">
-                Improved indexing, secure vault rotation, and updated terminal UI.
+                {release.notes}
               </p>
               <a
                 href="https://github.com/Kena-AT/Coda_Web/releases"
@@ -348,7 +339,7 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-6">
               <div className="flex flex-col items-center gap-3">
                 <a
-                  href="/Coda_1.0.0_x64-setup.exe"
+                  href={release.exeUrl}
                   className="bg-[#e60000] px-10 py-5 text-sm font-bold tracking-[0.2em] text-white shadow-[4px_4px_0_#131313]"
                 >
                   DOWNLOAD_EXE
@@ -357,7 +348,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col items-center gap-3">
                 <a
-                  href="/Coda_1.0.0_x64_en-US.msi"
+                  href={release.msiUrl}
                   className="border-2 border-[#e5e2e1] px-10 py-5 text-sm font-bold tracking-[0.2em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
                 >
                   DOWNLOAD_MSI
@@ -371,19 +362,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <button
-        type="button"
-        className="fixed bottom-10 right-10 z-50 flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#131313] bg-[#ffb4a8] shadow-[4px_4px_0_#131313]"
-        aria-label="Quick deploy scripts"
-      >
-        <svg viewBox="0 0 20 25" className="h-6 w-6" aria-hidden="true">
-          <path
-            d="M8.1875 20.25l6.46875-7.75-5 0 0.90625-7.09375-5.78125 8.34375 4.34375 0-0.9375 6.5 0 0m-3.1875 4.75l1.25-8.75-6.25 0 11.25-16.25 2.5 0-1.25 10 7.5 0-12.5 15-2.5 0 0 0"
-            fill="#ffffff"
-          />
-        </svg>
-      </button>
     </div>
   );
 }
