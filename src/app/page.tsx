@@ -14,7 +14,7 @@ export default function Home() {
           <div className="border border-[#e60000] bg-[#e6000005] px-4 py-1 font-mono text-xs font-bold tracking-[0.3em] text-[#e60000]">
             SYSTEM_LOAD_COMPLETE // V.2.0.4-STABLE
           </div>
-          <div className="font-display text-[clamp(3rem,10vw,8rem)] font-bold leading-none text-[#e5e2e1]">
+          <div className="font-display text-[clamp(2rem,8vw,4.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
             <div className="text-[#e60000]">SNIPPET_MANAGER</div>
           </div>
@@ -63,7 +63,7 @@ export default function Home() {
       <section className="border-t border-[#353534] bg-[#131313] px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4">
-            <h2 className="font-display text-4xl font-bold tracking-tight text-[#e5e2e1]">
+            <h2 className="font-display text-2xl md:text-3xl font-bold tracking-tight text-[#e5e2e1]">
               SYSTEM_PREVIEWS
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
@@ -83,6 +83,7 @@ export default function Home() {
                     src={card.image}
                     alt={card.label}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
                   />
                 </div>
@@ -98,45 +99,47 @@ export default function Home() {
       <section className="border-t border-[#353534] bg-[#131313] px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col gap-4">
-            <h2 className="font-display text-4xl font-bold text-[#e5e2e1]">CORE_PROTOCOLS</h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">CORE_FEATURES</h2>
             <div className="h-1 w-32 bg-[#e60000]" />
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="col-span-2 flex flex-col gap-6">
               <div className="flex flex-col gap-8 border border-[#353534] bg-[#201f1f] p-10 text-left">
                 <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  PROTOCOL_01
+                  FEATURE_01
                 </div>
-                <div className="font-display text-2xl font-bold text-[#e5e2e1]">
-                  INSTANT_SEARCH
+                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
+                  SMART_SNIPPET_MANAGEMENT
                 </div>
                 <p className="text-sm text-[#e9bcb5]">
-                  Launch-to-snippet in under 100ms. Tag, filter, and retrieve any code block
-                  without leaving your workflow.
+                  Organize your code with precision. Tag, categorize, and manage thousands
+                  of snippets with zero lag. Local-first architecture ensures your data
+                  never leaves your machine.
                 </p>
               </div>
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="flex flex-col gap-4 border border-[#e60000] bg-[#0e0e0e] p-10">
                   <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                    PROTOCOL_03
+                    FEATURE_03
                   </div>
-                  <div className="font-display text-2xl font-bold text-[#e5e2e1]">
-                    OFFLINE_CACHE
+                  <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
+                    LIGHTNING_SEARCH
                   </div>
                   <p className="text-sm text-[#e9bcb5]">
-                    Everything stays local and encrypted. Instant access even without a
-                    network.
+                    Find any snippet in under 100ms. Our optimized search matrix handles
+                    complex queries across all your local vaults instantly.
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 border border-[#353534] bg-[#201f1f] p-10">
                   <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                    PROTOCOL_04
+                    FEATURE_04
                   </div>
-                  <div className="font-display text-2xl font-bold text-[#e5e2e1]">
-                    SECURE_SHARING
+                  <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
+                    OFFLINE_FIRST
                   </div>
                   <p className="text-sm text-[#e9bcb5]">
-                    Share sanitized snippets with time-limited access and hashed integrity.
+                    Engineered for reliability. Access and edit your snippets even without
+                    an internet connection. Full local encryption included.
                   </p>
                 </div>
               </div>
@@ -144,14 +147,14 @@ export default function Home() {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-6 border border-[#353534] bg-[#201f1f] p-10">
                 <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  PROTOCOL_02
+                  FEATURE_02
                 </div>
-                <div className="font-display text-2xl font-bold text-[#e5e2e1]">
+                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
                   VERSION_CONTROL
                 </div>
                 <p className="text-sm text-[#e9bcb5]">
-                  Preserve every iteration of your snippets with diff tracking and rollback
-                  snapshots.
+                  Every edit is tracked. Roll back to any previous version of a snippet with
+                  built-in diffing and snapshot history.
                 </p>
                 <div className="mt-4 border border-[#353534] bg-[#2a2a2a] px-4 py-3 text-xs font-mono text-[#e5e2e1]">
                   TRACKING_STATE // ACTIVE
@@ -159,16 +162,74 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-6 border border-[#353534] bg-[#201f1f] p-10">
                 <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#e60000]">
-                  PROTOCOL_05
+                  FEATURE_05
                 </div>
-                <div className="font-display text-2xl font-bold text-[#e5e2e1]">
-                  ANALYTICS
+                <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
+                  USAGE_ANALYTICS
                 </div>
                 <p className="text-sm text-[#e9bcb5]">
-                  Understand usage patterns across your local vaults with zero telemetry
-                  leakage.
+                  Gain insights into your coding patterns. Track snippet usage and velocity
+                  with privacy-focused, local telemetry.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-[#353534] bg-[#0e0e0e] px-6 py-24">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">
+              SYSTEM_REQUIREMENTS
+            </h2>
+            <div className="h-1 w-32 bg-[#e60000]" />
+          </div>
+          <div className="mx-auto w-full max-w-3xl border border-[#353534] bg-[#131313] p-8 md:p-12">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="flex flex-col gap-6">
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    OS_ARCHITECTURE
+                  </div>
+                  <div className="text-[#e5e2e1]">Windows 10 / 11 (64-bit)</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    PROCESSOR_UNIT
+                  </div>
+                  <div className="text-[#e5e2e1]">1.6 GHz or faster processor</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    MEMORY_BUFFER
+                  </div>
+                  <div className="text-[#e5e2e1]">4 GB RAM minimum</div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-6">
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    STORAGE_VAULT
+                  </div>
+                  <div className="text-[#e5e2e1]">200 MB available space</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    DISPLAY_MATRIX
+                  </div>
+                  <div className="text-[#e5e2e1]">1280 x 800 resolution</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-[#e60000]">
+                    DEPENDENCY_CHECK
+                  </div>
+                  <div className="text-[#e5e2e1]">Edge WebView2 Runtime</div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-10 border-t border-[#353534] pt-6 font-mono text-[10px] text-[#e9bcb5]">
+              // SYSTEM_COMPATIBILITY_VERIFIED_V.1.0.0
             </div>
           </div>
         </div>
@@ -180,7 +241,7 @@ export default function Home() {
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4">
-            <h2 className="font-display text-4xl font-bold text-[#e5e2e1]">
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">
               RELEASE_INTELLIGENCE
             </h2>
             <div className="h-1 w-32 bg-[#e60000]" />
@@ -190,7 +251,7 @@ export default function Home() {
               <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
                 BUILD_STATUS
               </div>
-              <div className="font-display text-2xl font-bold text-[#e5e2e1]">
+              <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
                 V1.0.0_STABLE
               </div>
               <p className="text-sm text-[#e9bcb5]">
@@ -204,7 +265,7 @@ export default function Home() {
               <div className="font-mono text-xs tracking-[0.2em] text-[#e60000]">
                 RELEASE_NOTES
               </div>
-              <div className="font-display text-2xl font-bold text-[#e5e2e1]">
+              <div className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
                 PATCHLINE_02
               </div>
               <p className="text-sm text-[#e9bcb5]">
