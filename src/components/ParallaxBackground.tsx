@@ -2,6 +2,17 @@
 
 import { useEffect, useRef } from "react";
 
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speed: number;
+  opacity: number;
+  layer: number;
+  dx: number;
+  dy: number;
+}
+
 export function ParallaxBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -12,51 +23,162 @@ export function ParallaxBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let particles: { x: number; y: number; size: number; speed: number; opacity: number }[] = [];
-    
+    let particles: Particle[] = [];
+    let scrollY = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
       initParticles();
     };
 
     const initParticles = () => {
       particles = [];
-      const particleCount = Math.floor((window.innerWidth * window.innerHeight) / 10000);
-      for (let i = 0; i < particleCount; i++) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const area = w * h;
+
+      // Layer 0: Slow grid points
+      const gridCount = Math.floor(area / 25000);
+      for (let i = 0; i < gridCount; i++) {
         particles.push({
-          x: Math.random() * window.innerWidth,
-          y: Math.random() * window.innerHeight,
-          size: Math.random() * 2 + 0.5,
-          speed: Math.random() * 0.5 + 0.1,
-          opacity: Math.random() * 0.5 + 0.1,
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 1.5 + 0.5,
+          speed: Math.random() * 0.05 + 0.02,
+          opacity: Math.random() * 0.15 + 0.05,
+          layer: 0,
+          dx: 0,
+          dy: 0,
+        });
+      }
+
+      // Layer 1: Medium red particles
+      const mediumCount = Math.floor(area / 15000);
+      for (let i = 0; i < mediumCount; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 2 + 1,
+          speed: Math.random() * 0.15 + 0.08,
+          opacity: Math.random() * 0.3 + 0.1,
+          layer: 1,
+          dx: 0,
+          dy: 0,
+        });
+      }
+
+      // Layer 2: Fast accent particles (fewer, larger)
+      const fastCount = Math.floor(area / 50000);
+      for (let i = 0; i < fastCount; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          size: Math.random() * 3 + 2,
+          speed: Math.random() * 0.3 + 0.2,
+          opacity: Math.random() * 0.25 + 0.1,
+          layer: 2,
+          dx: 0,
+          dy: 0,
         });
       }
     };
 
-    let scrollY = 0;
     const handleScroll = () => {
       scrollY = window.scrollY;
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      targetMouseX = e.clientX;
+      targetMouseY = e.clientY;
+    };
+
     window.addEventListener("resize", resize);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     resize();
 
     let animationFrameId: number;
 
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Smooth mouse lerp
+      mouseX += (targetMouseX - mouseX) * 0.05;
+      mouseY += (targetMouseY - mouseY) * 0.05;
+
+      // Draw connecting lines for nearby particles in same layer
+      const drawConnections = (layerParticles: Particle[], maxDist: number, opacity: number) => {
+        ctx.strokeStyle = `rgba(230, 0, 0, ${opacity})`;
+        ctx.lineWidth = 0.5;
+
+        for (let i = 0; i < layerParticles.length; i++) {
+          for (let j = i + 1; j < layerParticles.length; j++) {
+            const a = layerParticles[i];
+            const b = layerParticles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < maxDist) {
+              const lineOpacity = opacity * (1 - dist / maxDist);
+              ctx.strokeStyle = `rgba(230, 0, 0, ${lineOpacity})`;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+        }
+      };
+
+      // Process particles by layer
+      const byLayer: Particle[][] = [[], [], []];
       particles.forEach((p) => {
-        // Apply parallax effect based on scroll position and particle speed
-        let yPos = (p.y - scrollY * p.speed) % canvas.height;
-        if (yPos < 0) yPos += canvas.height;
+        byLayer[p.layer].push(p);
+      });
+
+      // Draw connections for layer 0 (grid feel)
+      drawConnections(byLayer[0], 80, 0.08);
+
+      // Draw all particles
+      particles.forEach((p) => {
+        // Parallax offset based on scroll
+        const parallaxY = (p.y - scrollY * p.speed) % (h + 100);
+        const yPos = parallaxY < -50 ? parallaxY + h + 100 : parallaxY;
+
+        // Mouse influence (subtle push)
+        const mouseDx = p.x - mouseX;
+        const mouseDy = yPos - mouseY;
+        const mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+        const mouseInfluence = Math.max(0, 1 - mouseDist / 300) * 8 * (p.layer + 1) * 0.5;
+
+        const finalX = p.x + (mouseDx / mouseDist) * mouseInfluence;
+        const finalY = yPos + (mouseDy / mouseDist) * mouseInfluence;
+
+        let color: string;
+        if (p.layer === 0) {
+          color = `rgba(230, 0, 0, ${p.opacity})`;
+        } else if (p.layer === 1) {
+          color = `rgba(230, 0, 0, ${p.opacity})`;
+        } else {
+          color = `rgba(229, 226, 225, ${p.opacity})`; // #e5e2e1 accent
+        }
 
         ctx.beginPath();
-        ctx.arc(p.x, yPos, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(230, 0, 0, ${p.opacity})`; // #e60000
+        ctx.arc(finalX, finalY, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = color;
         ctx.fill();
       });
 
@@ -68,6 +190,7 @@ export function ParallaxBackground() {
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -75,8 +198,11 @@ export function ParallaxBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[-1] opacity-50"
-      style={{ background: "transparent" }}
+      className="fixed inset-0 pointer-events-none -z-10"
+      style={{
+        background: "transparent",
+        opacity: 0.6,
+      }}
     />
   );
 }

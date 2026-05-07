@@ -12,6 +12,7 @@ import Screenshot12 from "@/assets/Screenshot (12).png";
 import fallbackRelease from "@/data/fallback-release.json";
 import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
 import { DownloadButton, ShaCopy, SystemStatus, FallbackNote } from "@/components/InteractiveElements";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 async function getReleaseData() {
   const timeout = 5000;
@@ -99,6 +100,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col w-full">
+      <ParallaxBackground />
       <section className="relative overflow-hidden bg-[#131313] px-6 pt-20 pb-0">
         <div className="absolute inset-0 opacity-5">
           <div className="h-full w-full bg-[radial-gradient(circle_at_top,_#e60000_0%,_transparent_55%)]" />
