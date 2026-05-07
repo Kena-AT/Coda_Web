@@ -79,9 +79,12 @@ export function Footer() {
   );
 }
 
+import { ParallaxBackground } from "./ParallaxBackground";
+
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#131313] text-white flex flex-col">
+    <div className="min-h-screen bg-[#131313] text-white flex flex-col relative z-0">
+      <ParallaxBackground />
       <Header />
       <main className="flex-1 flex flex-col">{children}</main>
       <Footer />
