@@ -20,6 +20,7 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [dimensions, setDimensions] = useState({ width: 0, height: 0, centerX: 0, centerY: 0 });
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number>(0);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -130,7 +131,7 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
     return () => cancelAnimationFrame(frameRef.current);
   }, []);
 
-  // Mouse tracking
+  // Mouse and Scroll tracking
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const centerX = window.innerWidth / 2;
@@ -142,11 +143,20 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
       setMousePos(mouseRef.current);
     };
 
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
-  // Transform points based on rotation and cursor repulsion
+  // Transform points based on rotation, scroll, and cursor repulsion
   const transformedPoints = useMemo(() => {
     if (dimensions.width === 0) return [];
 
@@ -165,12 +175,18 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
       const x2 = x1 * cosRotY + z2 * sinRotY;
       const z3 = -x1 * sinRotY + z2 * cosRotY;
 
+      // Apply scroll parallax (moves slower than foreground)
+      // Scroll factor of 0.4 means it moves at 40% speed
+      const scrollOffset = scrollY * 0.4;
+
       // Final position before cursor interaction
       let finalX = dimensions.centerX + x2;
-      let finalY = dimensions.centerY + y2;
+      let finalY = (dimensions.centerY + y2) - scrollOffset;
       let finalZ = z3;
 
       // Cursor repulsion effect - nodes move away from cursor
+      // Note: mousePos is relative to center, but we need to account for scroll in the mouse interaction too
+      // if we want the "repulsion" to follow the dots as they scroll.
       const cursorX = dimensions.centerX + mousePos.x;
       const cursorY = dimensions.centerY + mousePos.y;
       
@@ -180,7 +196,7 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
       
       const distanceFromCenter = Math.sqrt(
         Math.pow(finalX - dimensions.centerX, 2) + 
-        Math.pow(finalY - dimensions.centerY, 2)
+        Math.pow(finalY + scrollOffset - dimensions.centerY, 2)
       );
       const influenceRadius = 150 + (distanceFromCenter / dimensions.centerX) * 100;
 
@@ -202,7 +218,7 @@ export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ classNam
         originalZ: point.z
       };
     });
-  }, [points, rotation, dimensions, mousePos]);
+  }, [points, rotation, dimensions, mousePos, scrollY]);
 
   // Connection lines for wireframe effect
   const connections = useMemo(() => {

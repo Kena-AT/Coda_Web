@@ -110,7 +110,7 @@ export default async function Home() {
             </div>
             <SystemStatus source={latest.source} />
           </div>
-          <div className="font-display text-[clamp(2rem,8vw,4.5rem)] font-bold leading-none text-[#e5e2e1]">
+          <div className="font-display text-[clamp(1.5rem,6vw,3.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
             <div className="text-[#e60000]">SNIPPET_MANAGER</div>
           </div>
