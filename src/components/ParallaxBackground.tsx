@@ -119,8 +119,23 @@ export function ParallaxBackground() {
       mouseX += (targetMouseX - mouseX) * 0.05;
       mouseY += (targetMouseY - mouseY) * 0.05;
 
-      // Draw connecting lines for nearby particles in same layer
-      const drawConnections = (layerParticles: Particle[], maxDist: number, opacity: number) => {
+      // Process particles by layer
+      const byLayer: Particle[][] = [[], [], []];
+      particles.forEach((p) => {
+        byLayer[p.layer].push(p);
+      });
+
+      // Calculate global mouse parallax offsets for each layer
+      // We want to shift the background in the opposite direction of the mouse
+      const mouseShiftX = (mouseX / w - 0.5);
+      const mouseShiftY = (mouseY / h - 0.5);
+
+      // Draw connections for layer 0 (grid feel)
+      // Connections need to account for the same mouse shift to stay aligned
+      const l0ShiftX = mouseShiftX * 20;
+      const l0ShiftY = mouseShiftY * 20;
+      
+      const drawConnections = (layerParticles: Particle[], maxDist: number, opacity: number, layerX: number, layerY: number) => {
         ctx.strokeStyle = `rgba(230, 0, 0, ${opacity})`;
         ctx.lineWidth = 0.5;
 
@@ -128,44 +143,45 @@ export function ParallaxBackground() {
           for (let j = i + 1; j < layerParticles.length; j++) {
             const a = layerParticles[i];
             const b = layerParticles[j];
+            
+            // Calculate current y positions including scroll
+            const ay = (a.y - scrollY * a.speed) % (h + 100);
+            const by = (b.y - scrollY * b.speed) % (h + 100);
+            const finalAy = ay < -50 ? ay + h + 100 : ay;
+            const finalBy = by < -50 ? by + h + 100 : by;
+
             const dx = a.x - b.x;
-            const dy = a.y - b.y;
+            const dy = finalAy - finalBy;
             const dist = Math.sqrt(dx * dx + dy * dy);
+
             if (dist < maxDist) {
               const lineOpacity = opacity * (1 - dist / maxDist);
               ctx.strokeStyle = `rgba(230, 0, 0, ${lineOpacity})`;
               ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
+              ctx.moveTo(a.x - layerX, finalAy - layerY);
+              ctx.lineTo(b.x - layerX, finalBy - layerY);
               ctx.stroke();
             }
           }
         }
       };
 
-      // Process particles by layer
-      const byLayer: Particle[][] = [[], [], []];
-      particles.forEach((p) => {
-        byLayer[p.layer].push(p);
-      });
-
-      // Draw connections for layer 0 (grid feel)
-      drawConnections(byLayer[0], 80, 0.08);
+      drawConnections(byLayer[0], 80, 0.08, l0ShiftX, l0ShiftY);
 
       // Draw all particles
       particles.forEach((p) => {
         // Parallax offset based on scroll
         const parallaxY = (p.y - scrollY * p.speed) % (h + 100);
-        const yPos = parallaxY < -50 ? parallaxY + h + 100 : parallaxY;
+        const scrollYPos = parallaxY < -50 ? parallaxY + h + 100 : parallaxY;
 
-        // Mouse influence (subtle push)
-        const mouseDx = p.x - mouseX;
-        const mouseDy = yPos - mouseY;
-        const mouseDist = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
-        const mouseInfluence = Math.max(0, 1 - mouseDist / 300) * 8 * (p.layer + 1) * 0.5;
+        // Mouse Parallax Offset (different intensity per layer)
+        // Layer 0: Subtle (20px), Layer 1: Medium (40px), Layer 2: High (70px)
+        const intensities = [20, 40, 70];
+        const mX = mouseShiftX * intensities[p.layer];
+        const mY = mouseShiftY * intensities[p.layer];
 
-        const finalX = p.x + (mouseDx / mouseDist) * mouseInfluence;
-        const finalY = yPos + (mouseDy / mouseDist) * mouseInfluence;
+        const finalX = p.x - mX;
+        const finalY = scrollYPos - mY;
 
         let color: string;
         if (p.layer === 0) {
