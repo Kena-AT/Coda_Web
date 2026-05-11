@@ -14,7 +14,7 @@ import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
 import { DownloadButton, ShaCopy, SystemStatus, FallbackNote } from "@/components/InteractiveElements";
 
 export default async function Page() {
-  const { latest, history } = await getReleaseData();
+  const { latest, history, totalDownloads } = await getReleaseData();
   
   const screenshots = [
     { image: Screenshot3, label: "SEARCH_MATRIX // GLOBAL_INDEX" },
@@ -40,7 +40,13 @@ export default async function Page() {
             <div className="border border-[#e60000] bg-[#e6000005] px-3 py-1 font-mono text-[10px] font-bold tracking-[0.15em] text-[#e60000]">
               SYSTEM_LOAD_COMPLETE // {latest.version}-STABLE
             </div>
-            <SystemStatus source={latest.source} />
+            <div className="flex items-center gap-4">
+              <SystemStatus source={latest.source} />
+              <div className="h-4 w-[1px] bg-[#353534]" />
+              <div className="font-mono text-[9px] text-[#e9bcb5] opacity-60">
+                <span className="text-[#e60000] font-bold">{totalDownloads}</span> TOTAL_DEPLOYMENTS
+              </div>
+            </div>
           </div>
           <div className="font-display text-[clamp(1.5rem,6vw,3.5rem)] font-bold leading-none text-[#e5e2e1]">
             <div>CODA //</div>
@@ -53,7 +59,7 @@ export default async function Page() {
           <div className="flex flex-wrap justify-center gap-4 pb-16">
             <a
               href="#download"
-              className="flex items-center gap-2 bg-[#e60000] px-6 py-3 text-xs font-bold tracking-[0.1em] text-white shadow-[4px_4px_0_#131313]"
+              className="flex items-center gap-2 bg-[#e60000] px-6 py-3 text-xs font-bold tracking-[0.1em] text-white shadow-[4px_4px_0_#131313] hover:scale-105 transition-transform"
             >
               DEPLOY_NOW
             </a>
@@ -61,7 +67,7 @@ export default async function Page() {
               href="https://github.com/Kena-AT/Coda"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 border-2 border-[#e5e2e1] px-6 py-3 text-xs font-bold tracking-[0.1em] text-[#e5e2e1] shadow-[4px_4px_0_#131313]"
+              className="flex items-center gap-2 border-2 border-[#e5e2e1] px-6 py-3 text-xs font-bold tracking-[0.1em] text-[#e5e2e1] shadow-[4px_4px_0_#131313] hover:bg-[#e5e2e1] hover:text-[#131313] transition-all"
             >
               SYSTEM_LOGS
             </a>
@@ -279,7 +285,7 @@ export default async function Page() {
                 </DownloadButton>
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-mono text-[10px] text-[#e60000]">RECOMMENDED_STABLE</span>
-                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.exeDownloads} DEPLOYMENTS</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.exeDownloads} CURRENT_VERSION_DEPLOYMENTS</span>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-4">
@@ -293,7 +299,7 @@ export default async function Page() {
                 </DownloadButton>
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-mono text-[10px] text-[#e9bcb5]">ENTERPRISE_READY</span>
-                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.msiDownloads} DEPLOYMENTS</span>
+                  <span className="font-mono text-[9px] text-[#a09999] uppercase">{latest.msiDownloads} CURRENT_VERSION_DEPLOYMENTS</span>
                 </div>
               </div>
             </div>

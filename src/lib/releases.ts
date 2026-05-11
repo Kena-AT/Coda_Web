@@ -23,8 +23,14 @@ export async function getReleaseData() {
     const releases = await res.json();
     
     if (!Array.isArray(releases) || releases.length === 0) {
-      return { latest: { ...fallbackRelease, source: "fallback" }, history: [] };
+      return { latest: { ...fallbackRelease, source: "fallback" }, history: [], totalDownloads: 0 };
     }
+
+    // Calculate total downloads across all releases
+    const totalDownloads = releases.reduce((acc: number, release: any) => {
+      const releaseDownloads = release.assets?.reduce((sum: number, asset: any) => sum + (asset.download_count || 0), 0) || 0;
+      return acc + releaseDownloads;
+    }, 0);
 
     const latestData = releases[0];
     const exeAsset = latestData.assets?.find((a: any) => a.name.endsWith(".exe"));
@@ -61,9 +67,9 @@ export async function getReleaseData() {
       summary: r.body ? r.body.split('\n')[0] : "Maintenance update."
     }));
 
-    return { latest, history };
+    return { latest, history, totalDownloads };
   } catch (error: any) {
     clearTimeout(id);
-    return { latest: { ...fallbackRelease, source: "fallback" }, history: [] };
+    return { latest: { ...fallbackRelease, source: "fallback" }, history: [], totalDownloads: 0 };
   }
 }
