@@ -27,21 +27,25 @@ This method enables Continuous Deployment (CD), meaning every push to your `main
 Use this if you want to deploy directly from your command line without a GitHub connection.
 
 1. **Install the CLI**:
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Authentication**:
+
    ```bash
    vercel login
    ```
 
 3. **Deploy Preview**:
+
    ```bash
    vercel
    ```
 
 4. **Deploy to Production**:
+
    ```bash
    vercel --prod
    ```
