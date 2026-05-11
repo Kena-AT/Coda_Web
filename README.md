@@ -16,6 +16,7 @@ Coda Web is the production-ready landing page for the **Coda** desktop applicati
 - **Robust Fallback Mechanism**: Features an integrated local JSON fallback to ensure downloads are always available, even if the GitHub API rate limits are reached or the service is temporarily unavailable.
 - **SHA256 Verification**: Includes a built-in SHA256 hash copy-to-clipboard functionality, allowing users to verify the integrity of their downloaded installers effortlessly.
 - **Changelog System**: Dynamically extracts and displays the latest release notes and version history, maintaining high transparency about recent updates.
+- **Alternative Download Source**: The Coda application and `.msi` installers can also be accessed via [coda-snippet.vercel.app](https://coda-snippet.vercel.app).
 
 ### Telemetry & Analytics
 
