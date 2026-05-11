@@ -4,7 +4,7 @@ const iconClassName = "w-3.5 h-3.5";
 
 export function Header() {
   return (
-    <header className="w-full h-12 bg-[#0e0e0e] border-b border-[#353534] flex items-center justify-between px-6 sticky top-0 z-50">
+    <header className="w-full h-12 bg-[#0e0e0e]/80 backdrop-blur-sm border-b border-[#353534] flex items-center justify-between px-6 sticky top-0 z-50">
       <div className="flex items-center gap-8">
         <Link
           href="/"
@@ -57,7 +57,7 @@ export function Header() {
 
 export function Footer() {
   return (
-    <footer className="w-full bg-[#0e0e0e] border-t border-[#353534] py-16 px-6">
+    <footer className="w-full bg-[#0e0e0e]/80 backdrop-blur-sm border-t border-[#353534] py-16 px-6">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
         <div className="flex flex-col gap-2">
           <span className="font-mono text-[#e60000] text-sm tracking-[0.3em]">CODA</span>
