@@ -12,7 +12,6 @@ import Screenshot12 from "@/assets/Screenshot (12).png";
 import fallbackRelease from "@/data/fallback-release.json";
 import { ScreenshotCarousel } from "@/components/ScreenshotCarousel";
 import { DownloadButton, ShaCopy, SystemStatus, FallbackNote } from "@/components/InteractiveElements";
-import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 async function getReleaseData() {
   const timeout = 5000;
@@ -100,8 +99,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col w-full">
-      <ParallaxBackground />
-      <section className="relative overflow-hidden bg-[#131313] px-6 pt-20 pb-0">
+      <section className="relative overflow-hidden bg-transparent px-6 pt-20 pb-0">
         <div className="absolute inset-0 opacity-5">
           <div className="h-full w-full bg-[radial-gradient(circle_at_top,_#e60000_0%,_transparent_55%)]" />
         </div>
@@ -159,7 +157,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-[#353534] bg-[#131313] px-6 py-24">
+      <section className="border-t border-[#353534] bg-transparent px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4">
             <h2 className="font-display text-lg md:text-xl font-bold tracking-tight text-[#e5e2e1]">
@@ -174,7 +172,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-[#353534] bg-[#131313] px-6 py-24">
+      <section className="border-t border-[#353534] bg-transparent px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-lg md:text-xl font-bold tracking-tight text-[#e5e2e1]">CORE_FEATURES</h2>
@@ -240,7 +238,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-[#353534] bg-[#0e0e0e] px-6 py-24">
+      <section className="border-t border-[#353534] bg-[#0e0e0e]/50 px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4 text-center">
             <h2 className="font-display text-xl md:text-2xl font-bold text-[#e5e2e1]">
@@ -283,7 +281,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="download" className="border-y border-[#353534] bg-[#0e0e0e] px-6 py-24">
+      <section id="download" className="border-y border-[#353534] bg-[#0e0e0e]/50 px-6 py-24">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-16">
           <div className="flex flex-col items-center gap-4">
             <h2 className="font-display text-2xl md:text-3xl font-bold text-[#e5e2e1]">RELEASE_INTELLIGENCE</h2>
