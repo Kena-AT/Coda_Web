@@ -1,224 +1,322 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 
-interface Particle {
-  x: number;
-  y: number;
-  size: number;
-  speed: number;
-  opacity: number;
-  layer: number;
-  dx: number;
-  dy: number;
+interface ParallaxBackgroundProps {
+  className?: string;
+  glow?: boolean;
 }
 
-export function ParallaxBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+interface OrbitalPoint {
+  x: number;
+  y: number;
+  z: number;
+  ringIndex: number;
+  angle: number;
+}
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+export const ParallaxBackground: React.FC<ParallaxBackgroundProps> = ({ className = '', glow = true }) => {
+  const [points, setPoints] = useState<OrbitalPoint[]>([]);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0, centerX: 0, centerY: 0 });
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<number>(0);
+  const mouseRef = useRef({ x: 0, y: 0 });
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  // Generate spherical orbital points
+  const generateOrbitalPoints = (centerX: number, centerY: number): OrbitalPoint[] => {
+    const rings = 12;
+    const pointsPerRing = 36;
+    const maxRadius = Math.min(centerX, centerY) * 1.5; 
+    const newPoints: OrbitalPoint[] = [];
 
-    let particles: Particle[] = [];
-    let scrollY = 0;
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetMouseX = 0;
-    let targetMouseY = 0;
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(dpr, dpr);
-      initParticles();
-    };
-
-    const initParticles = () => {
-      particles = [];
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const area = w * h;
-
-      // Layer 0: Slow grid points
-      const gridCount = Math.floor(area / 25000);
-      for (let i = 0; i < gridCount; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          size: Math.random() * 1.5 + 0.5,
-          speed: Math.random() * 0.05 + 0.02,
-          opacity: Math.random() * 0.15 + 0.05,
-          layer: 0,
-          dx: 0,
-          dy: 0,
-        });
-      }
-
-      // Layer 1: Medium red particles
-      const mediumCount = Math.floor(area / 15000);
-      for (let i = 0; i < mediumCount; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          size: Math.random() * 2 + 1,
-          speed: Math.random() * 0.15 + 0.08,
-          opacity: Math.random() * 0.3 + 0.1,
-          layer: 1,
-          dx: 0,
-          dy: 0,
-        });
-      }
-
-      // Layer 2: Fast accent particles (fewer, larger)
-      const fastCount = Math.floor(area / 50000);
-      for (let i = 0; i < fastCount; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          size: Math.random() * 3 + 2,
-          speed: Math.random() * 0.3 + 0.2,
-          opacity: Math.random() * 0.25 + 0.1,
-          layer: 2,
-          dx: 0,
-          dy: 0,
-        });
-      }
-    };
-
-    const handleScroll = () => {
-      scrollY = window.scrollY;
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      targetMouseX = e.clientX;
-      targetMouseY = e.clientY;
-    };
-
-    window.addEventListener("resize", resize);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-
-    resize();
-
-    let animationFrameId: number;
-
-    const draw = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-
-      ctx.clearRect(0, 0, w, h);
-
-      // Smooth mouse lerp
-      mouseX += (targetMouseX - mouseX) * 0.05;
-      mouseY += (targetMouseY - mouseY) * 0.05;
-
-      // Process particles by layer
-      const byLayer: Particle[][] = [[], [], []];
-      particles.forEach((p) => {
-        byLayer[p.layer].push(p);
-      });
-
-      // Calculate global mouse parallax offsets for each layer
-      // We want to shift the background in the opposite direction of the mouse
-      const mouseShiftX = (mouseX / w - 0.5);
-      const mouseShiftY = (mouseY / h - 0.5);
-
-      // Draw connections for layer 0 (grid feel)
-      // Connections need to account for the same mouse shift to stay aligned
-      const l0ShiftX = mouseShiftX * 20;
-      const l0ShiftY = mouseShiftY * 20;
+    for (let r = 0; r < rings; r++) {
+      const ringProgress = r / (rings - 1);
+      const radius = 80 + (maxRadius - 80) * ringProgress;
       
-      const drawConnections = (layerParticles: Particle[], maxDist: number, opacity: number, layerX: number, layerY: number) => {
-        ctx.strokeStyle = `rgba(230, 0, 0, ${opacity})`;
-        ctx.lineWidth = 0.5;
+      // Create tilted rings at different angles for 3D sphere effect
+      const tiltX = (r % 3) * 0.3;
+      const tiltY = (r % 2) * 0.5;
+      
+      for (let i = 0; i < pointsPerRing; i++) {
+        const angle = (i / pointsPerRing) * Math.PI * 2;
+        
+        // 3D coordinates
+        let x = Math.cos(angle) * radius;
+        let y = Math.sin(angle) * radius;
+        let z = 0;
+        
+        // Apply tilt rotations
+        const cosTiltX = Math.cos(tiltX);
+        const sinTiltX = Math.sin(tiltX);
+        const cosTiltY = Math.cos(tiltY);
+        const sinTiltY = Math.sin(tiltY);
+        
+        const y1 = y * cosTiltX - z * sinTiltX;
+        const z1 = y * sinTiltX + z * cosTiltX;
+        const x2 = x * cosTiltY + z1 * sinTiltY;
+        const z2 = -x * sinTiltY + z1 * cosTiltY;
+        
+        newPoints.push({
+          x: centerX + x2,
+          y: centerY + y1,
+          z: z2,
+          ringIndex: r,
+          angle: angle
+        });
+      }
+    }
 
-        for (let i = 0; i < layerParticles.length; i++) {
-          for (let j = i + 1; j < layerParticles.length; j++) {
-            const a = layerParticles[i];
-            const b = layerParticles[j];
-            
-            // Calculate current y positions including scroll
-            const ay = (a.y - scrollY * a.speed) % (h + 100);
-            const by = (b.y - scrollY * b.speed) % (h + 100);
-            const finalAy = ay < -50 ? ay + h + 100 : ay;
-            const finalBy = by < -50 ? by + h + 100 : by;
+    // Add spiral arms (galactic effect)
+    const spiralArms = 4;
+    const spiralPoints = 80;
+    for (let arm = 0; arm < spiralArms; arm++) {
+      const armOffset = (arm / spiralArms) * Math.PI * 2;
+      for (let i = 0; i < spiralPoints; i++) {
+        const progress = i / spiralPoints;
+        const radius = 60 + maxRadius * 0.7 * progress;
+        const angle = armOffset + progress * Math.PI * 4;
+        
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        const z = Math.sin(progress * Math.PI) * 50 - 25;
+        
+        newPoints.push({
+          x: centerX + x,
+          y: centerY + y,
+          z: z,
+          ringIndex: -1,
+          angle: angle
+        });
+      }
+    }
 
-            const dx = a.x - b.x;
-            const dy = finalAy - finalBy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+    return newPoints;
+  };
 
-            if (dist < maxDist) {
-              const lineOpacity = opacity * (1 - dist / maxDist);
-              ctx.strokeStyle = `rgba(230, 0, 0, ${lineOpacity})`;
-              ctx.beginPath();
-              ctx.moveTo(a.x - layerX, finalAy - layerY);
-              ctx.lineTo(b.x - layerX, finalBy - layerY);
-              ctx.stroke();
-            }
-          }
-        }
-      };
-
-      drawConnections(byLayer[0], 80, 0.08, l0ShiftX, l0ShiftY);
-
-      // Draw all particles
-      particles.forEach((p) => {
-        // Parallax offset based on scroll
-        const parallaxY = (p.y - scrollY * p.speed) % (h + 100);
-        const scrollYPos = parallaxY < -50 ? parallaxY + h + 100 : parallaxY;
-
-        // Mouse Parallax Offset (different intensity per layer)
-        // Layer 0: Subtle (20px), Layer 1: Medium (40px), Layer 2: High (70px)
-        const intensities = [20, 40, 70];
-        const mX = mouseShiftX * intensities[p.layer];
-        const mY = mouseShiftY * intensities[p.layer];
-
-        const finalX = p.x - mX;
-        const finalY = scrollYPos - mY;
-
-        let color: string;
-        if (p.layer === 0) {
-          color = `rgba(230, 0, 0, ${p.opacity})`;
-        } else if (p.layer === 1) {
-          color = `rgba(230, 0, 0, ${p.opacity})`;
-        } else {
-          color = `rgba(229, 226, 225, ${p.opacity})`; // #e5e2e1 accent
-        }
-
-        ctx.beginPath();
-        ctx.arc(finalX, finalY, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-      });
-
-      animationFrameId = requestAnimationFrame(draw);
+  // Initialize dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        setDimensions({ width, height, centerX, centerY });
+        setPoints(generateOrbitalPoints(centerX, centerY));
+      }
     };
 
-    draw();
-
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    
     return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', updateDimensions);
     };
   }, []);
 
+  // Smooth rotation animation with auto-rotation
+  useEffect(() => {
+    const animate = () => {
+      setRotation(prev => ({
+        x: prev.x + (mouseRef.current.y * 0.0005 - prev.x) * 0.05 + 0.002,
+        y: prev.y + (mouseRef.current.x * 0.0005 - prev.y) * 0.05 + 0.003
+      }));
+      frameRef.current = requestAnimationFrame(animate);
+    };
+
+    frameRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, []);
+
+  // Mouse tracking
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      mouseRef.current = {
+        x: e.clientX - centerX,
+        y: e.clientY - centerY
+      };
+      setMousePos(mouseRef.current);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Transform points based on rotation and cursor repulsion
+  const transformedPoints = useMemo(() => {
+    if (dimensions.width === 0) return [];
+
+    const cosRotX = Math.cos(rotation.x);
+    const sinRotX = Math.sin(rotation.x);
+    const cosRotY = Math.cos(rotation.y);
+    const sinRotY = Math.sin(rotation.y);
+
+    return points.map(point => {
+      const y1 = point.y - dimensions.centerY;
+      const z1 = point.z;
+      const y2 = y1 * cosRotX - z1 * sinRotX;
+      const z2 = y1 * sinRotX + z1 * cosRotX;
+
+      const x1 = point.x - dimensions.centerX;
+      const x2 = x1 * cosRotY + z2 * sinRotY;
+      const z3 = -x1 * sinRotY + z2 * cosRotY;
+
+      // Final position before cursor interaction
+      let finalX = dimensions.centerX + x2;
+      let finalY = dimensions.centerY + y2;
+      let finalZ = z3;
+
+      // Cursor repulsion effect - nodes move away from cursor
+      const cursorX = dimensions.centerX + mousePos.x;
+      const cursorY = dimensions.centerY + mousePos.y;
+      
+      const dx = finalX - cursorX;
+      const dy = finalY - cursorY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      const distanceFromCenter = Math.sqrt(
+        Math.pow(finalX - dimensions.centerX, 2) + 
+        Math.pow(finalY - dimensions.centerY, 2)
+      );
+      const influenceRadius = 150 + (distanceFromCenter / dimensions.centerX) * 100;
+
+      if (dist < influenceRadius && dist > 0) {
+        const force = Math.pow(1 - dist / influenceRadius, 2) * 60;
+        const pushX = (dx / dist) * force;
+        const pushY = (dy / dist) * force;
+        
+        finalX += pushX;
+        finalY += pushY;
+        finalZ -= force * 0.3;
+      }
+
+      return {
+        x: finalX,
+        y: finalY,
+        z: finalZ,
+        ringIndex: point.ringIndex,
+        originalZ: point.z
+      };
+    });
+  }, [points, rotation, dimensions, mousePos]);
+
+  // Connection lines for wireframe effect
+  const connections = useMemo(() => {
+    if (transformedPoints.length === 0) return [];
+    const lines: { x1: number; y1: number; x2: number; y2: number; opacity: number }[] = [];
+    
+    const ringGroups = new Map<number, typeof transformedPoints>();
+    transformedPoints.forEach(p => {
+      if (p.ringIndex >= 0) {
+        if (!ringGroups.has(p.ringIndex)) ringGroups.set(p.ringIndex, []);
+        ringGroups.get(p.ringIndex)!.push(p);
+      }
+    });
+
+    ringGroups.forEach(ringPoints => {
+      ringPoints.sort((a, b) => {
+        const angleA = Math.atan2(a.y - dimensions.centerY, a.x - dimensions.centerX);
+        const angleB = Math.atan2(b.y - dimensions.centerY, b.x - dimensions.centerX);
+        return angleA - angleB;
+      });
+
+      for (let i = 0; i < ringPoints.length; i++) {
+        const current = ringPoints[i];
+        const next = ringPoints[(i + 1) % ringPoints.length];
+        
+        if (current.z > -80 && next.z > -80) {
+          const avgZ = (current.z + next.z) / 2;
+          const opacity = Math.max(0.05, Math.min(0.3, (avgZ + 100) / 400));
+          lines.push({
+            x1: current.x,
+            y1: current.y,
+            x2: next.x,
+            y2: next.y,
+            opacity
+          });
+        }
+      }
+    });
+
+    return lines;
+  }, [transformedPoints, dimensions]);
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none -z-10"
+    <div 
+      ref={containerRef} 
+      className={`fixed inset-0 pointer-events-none overflow-hidden -z-10 ${className}`}
       style={{
-        background: "transparent",
-        opacity: 0.6,
-      }}
-    />
+        backgroundColor: '#131313',
+        '--accent': '#e60000',
+        '--accent-secondary': '#e5e2e1'
+      } as React.CSSProperties}
+    >
+      
+      {glow && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-40">
+          <div className="w-[1000px] h-[1000px] bg-[var(--accent)] blur-[300px] rounded-full opacity-[0.1]" />
+          <div className="absolute w-[600px] h-[600px] bg-[var(--accent-secondary)] blur-[150px] rounded-full opacity-[0.05]" />
+        </div>
+      )}
+
+      <svg className="absolute inset-0 w-full h-full opacity-60">
+        {/* Connection lines - wireframe effect */}
+        {connections.map((line, i) => (
+          <line
+            key={`line-${i}`}
+            x1={line.x1}
+            y1={line.y1}
+            x2={line.x2}
+            y2={line.y2}
+            stroke="var(--accent)"
+            strokeWidth="0.5"
+            opacity={line.opacity}
+          />
+        ))}
+
+        {/* Points */}
+        {transformedPoints.map((point, i) => {
+          const depth = (point.z + 100) / 200;
+          const opacity = Math.max(0.1, Math.min(0.8, depth));
+          const size = point.ringIndex === -1 ? 1 : 1.2 + depth * 0.8;
+          
+          const isSpiral = point.ringIndex === -1;
+          const color = isSpiral ? "var(--accent-secondary)" : "var(--accent)";
+
+          return (
+            <circle
+              key={`point-${i}`}
+              cx={point.x}
+              cy={point.y}
+              r={size}
+              fill={color}
+              fillOpacity={opacity}
+            />
+          );
+        })}
+
+        {/* Center core glow */}
+        <circle
+          cx={dimensions.centerX}
+          cy={dimensions.centerY}
+          r="2"
+          fill="var(--accent)"
+          opacity="0.6"
+        />
+        <circle
+          cx={dimensions.centerX}
+          cy={dimensions.centerY}
+          r="6"
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="0.5"
+          opacity="0.2"
+        />
+      </svg>
+    </div>
   );
-}
+};
